@@ -4,11 +4,23 @@
 
 Copyright (C) 2012 HustMoon
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 from __future__ import with_statement
 
@@ -60,7 +72,7 @@ code()
                     for c in zlib.compress(code, 9)])
 dcode = dcode()
 
-def convert(infile, outfile):
+def encode(infile, outfile):
     with open(infile, 'rU') as fp:
         code = fp.read().rstrip('\n') + '\n'
     code = b128encode(zlib.compress(code, 9), True)
@@ -71,13 +83,26 @@ exec(code.decode('zlib'))
     with open(outfile, 'wb') as fp:
         fp.write(code)
 
+def decode(infile, outfile):
+    with open(infile, 'rU') as fp:
+        code = fp.read().rstrip('\n') + '\n'
+    code = code.replace("exec(code.decode('zlib'))", "exec(code.decode('zlib')"
+        ".replace('exec','fp.write').replace('in((_______))',''))")
+    with open(outfile, 'wb') as fp:
+        eval(compile(code, 's', 'exec'), {'fp':fp})
+
 def main():
     try:
-        infile, outfile = sys.argv[1:3]
+        if sys.argv[1] == '-d':
+            func = decode
+            infile, outfile = sys.argv[2:4]
+        else:
+            func = encode
+            infile, outfile = sys.argv[1:3]
     except ValueError: 
-        print >>sys.stderr, 'Usage: zipcode.py infile.py outfile.py'
+        print >>sys.stderr, 'Usage: zipcode.py [-d] infile.py outfile.py'
         raise SystemExit(-1)
-    convert(infile, outfile)
+    func(infile, outfile)
 
 if __name__ == '__main__':
     main()
