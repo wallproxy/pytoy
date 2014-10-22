@@ -99,7 +99,7 @@ def main():
         else:
             func = encode
             infile, outfile = sys.argv[1:3]
-    except ValueError: 
+    except (IndexError, ValueError):
         print >>sys.stderr, 'Usage: zipcode.py [-d] infile.py outfile.py'
         raise SystemExit(-1)
     func(infile, outfile)
